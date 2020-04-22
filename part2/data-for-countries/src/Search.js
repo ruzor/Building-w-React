@@ -11,7 +11,7 @@ const Search = ({ setMatchedCountries, countries, setCountryView }) => {
 
     return (
         <div>
-            find countries <input onChange={handleSearchChange} />
+            find countries <input onChange={handleSearchChange} autoFocus />
         </div>
     )
 }

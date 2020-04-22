@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import services from './services'
 import PersonForm from './PersonForm'
 import Search from './Search'
 import Persons from './Persons'
@@ -10,49 +10,46 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('');
   const [searchQuery, setSearchQuery] = useState([]);
 
-  const hook = () => {
-    axios.get("http://localhost:3001/persons")
-      .then(response => setPersons(response.data));
-  }
+  useEffect(() => {
+    services.getAllPersons()
+      .then(data => setPersons(data));
+  }, []);
 
-  useEffect(hook, []);
-
-  const addInfo = (event) => {
+  const addPerson = (event) => {
     event.preventDefault();
-    if (persons.find(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
-      return
-    }
-    setPersons(persons.concat({
+
+    const newPerson = {
       name: newName,
-      number: newNumber
-    }));
-  }
-
-  const searchInfo = ({ target: { value } }) => {
-    setSearchQuery(persons.filter(person => person.name.toLocaleLowerCase().startsWith(`${value.toLowerCase()}`)));
-  }
-
-  const render = () => {
-    if (searchQuery.length) {
-      return searchQuery.map(query =>
-        <li key={query.name} >{query.name} {query.number}</li>
-      )
+      number: newNumber,
+      id: persons.slice(-1)[0].id + 1
     }
-    return persons.map(person =>
-      <li key={person.name} >{person.name} {person.number}</li>
-    )
+
+    const matchedPerson = persons.find(person => person.name === newName);
+
+    if (matchedPerson) {
+      const message = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`);
+      if (window.confirm(message)) {
+        services.updatePerson({ ...matchedPerson, number: newNumber })
+          .then(() => services.getAllPersons()
+            .then(data => setPersons(data)));
+        return;
+      }
+      return;
+    }
+
+    services.createPerson(newPerson)
+      .then(data => setPersons(persons.concat(data)));
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addInfo} >
-        <Search searchInfo={searchInfo} />
+      <form onSubmit={addPerson} >
+        <Search setSearchQuery={setSearchQuery} persons={persons} />
         <PersonForm newName={newName} newNumber={newNumber} setNewName={setNewName} setNewNumber={setNewNumber} />
       </form>
       <h2>Numbers</h2>
-      <Persons render={render} />
+      <Persons setPersons={setPersons} persons={persons} searchQuery={searchQuery} />
     </div>
   )
 }

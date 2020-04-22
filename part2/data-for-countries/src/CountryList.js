@@ -2,11 +2,11 @@ import React from 'react'
 import CountryView from './CountryView'
 import Country from './Country'
 
-const CountryList = ({ matchedCountries, countryView, setCountryView }) => {
+const CountryList = ({ matchedCountries, countryView, setCountryView, setSearchQuery }) => {
     if (countryView.showDetails) {
         return (
             <div>
-                <Country country={countryView.country} countryView={countryView} setCountryView={setCountryView} />
+                <CountryView country={countryView.country} />
             </div>
         )
     } else if (matchedCountries.length === 0) {
@@ -18,10 +18,11 @@ const CountryList = ({ matchedCountries, countryView, setCountryView }) => {
     } else if (matchedCountries.length === 1) {
         return (
             <div>
-                <CountryView country={matchedCountries[0]} />
+                <CountryView country={matchedCountries[0]} setSearchQuery={setSearchQuery} />
             </div>
         )
     } else if (matchedCountries.length !== 0 && matchedCountries.length < 10) {
+        console.log('fam')
         return (
             <div>
                 <ul>
@@ -34,6 +35,7 @@ const CountryList = ({ matchedCountries, countryView, setCountryView }) => {
             </div>
         )
     } else if (matchedCountries.length > 10) {
+        console.log('boy')
         return (
             <div>
                 Too many matches, specify another filter
