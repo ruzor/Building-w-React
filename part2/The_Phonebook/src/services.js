@@ -1,24 +1,50 @@
 import axios from 'axios';
-const baseUrl = 'http://localhost:3001/persons'
+const baseUrl = '/api/persons'
 
 const getAllPersons = async () => {
-    const response = await axios.get(baseUrl);
-    return response.data;
+    try {
+        const response = await axios.get(baseUrl);
+        if (!response.data.data) {
+            throw new Error("something went wrong")
+        }
+        return response.data.data;
+    } catch (error) {
+        throw error
+    }
 }
 
 const createPerson = async person => {
-    const response = await axios.post(baseUrl, person);
-    return response.data;
+    let response;
+    try {
+        response = await axios.post(baseUrl, person);
+        if (!response.data.data) {
+            throw new Error("no data prop")
+        }
+        return response.data.data;
+    } catch (error) {
+        throw error;
+    }
 }
 
 const deletePerson = async id => {
-    const response = await axios.delete(`${baseUrl}/${id}`);
-    return response.data;
+    try {
+        const response = await axios.delete(`${baseUrl}/${id}`);
+        return response;
+    } catch (error) {
+        throw error
+    }
 }
 
 const updatePerson = async person => {
-    const response = await axios.put(`${baseUrl}/${person.id}`, person);
-    return response.data;
+    try {
+        const response = await axios.put(`${baseUrl}/${person.id}`, person);
+        if (!response.data.data) {
+            throw new Error("something went wrong")
+        }
+        return response.data.data;
+    } catch (error) {
+        throw error
+    }
 }
 
-export default {getAllPersons, createPerson, deletePerson, updatePerson}
+export default { getAllPersons, createPerson, deletePerson, updatePerson }

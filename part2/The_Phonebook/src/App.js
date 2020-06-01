@@ -23,9 +23,10 @@ const App = () => {
 
     const newPerson = {
       name: newName,
-      number: newNumber,
-      id: persons.slice(-1)[0].id + 1
+      number: newNumber
     }
+
+    // check if name is already in db state and update, else create new person in db
 
     const matchedPerson = persons.find(person => person.name === newName);
 
@@ -34,6 +35,7 @@ const App = () => {
       if (window.confirm(message)) {
         services.updatePerson({ ...matchedPerson, number: newNumber })
           .then(data => {
+            console.log(data)
             setPersons(persons.map(person => person.id !== data.id ? person : data));
             setNotificationMessage(`Added ${data.name}`);
             setNotificationClass('notification')
@@ -42,16 +44,17 @@ const App = () => {
               setNotificationClass(null)
             }, 5000);
           })
-          .catch(() => {
+          .catch(error => {
+            console.log(error);
             setNotificationMessage(
-              `Information of '${matchedPerson.name}' has already been removed from server`
+              `Error: ${error}`
             )
             setNotificationClass('error')
             setTimeout(() => {
               setNotificationMessage(null)
               setNotificationClass(null)
             }, 5000)
-            setPersons(persons.filter(person => person.id !== matchedPerson.id));
+            // setPersons(persons.filter(person => person.id !== matchedPerson.id));
           })
         return;
       }
@@ -67,6 +70,19 @@ const App = () => {
           setNotificationMessage(null)
           setNotificationClass(null)
         }, 5000);
+      })
+      .catch(error => {
+        let errorData = error.response.data;
+        console.log(errorData);
+        setNotificationMessage(
+          // fix this error message
+          `Error: ${ errorData.errors.name?.message || errorData.errors.name?.message }`
+        )
+        setNotificationClass('error')
+        setTimeout(() => {
+          setNotificationMessage(null)
+          setNotificationClass(null)
+        }, 5000)
       })
   }
 
@@ -85,3 +101,5 @@ const App = () => {
 }
 
 export default App
+
+// disconnect the front from the back and manage errors
